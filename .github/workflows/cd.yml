@@ -23,11 +23,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Build and push Docker images
+      - name: Build Docker images
         run: |
           docker-compose build
-          docker tag fastapi-book-project_app ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
+      - name: Tag and push Docker image
+        run: |
+          docker tag fastapi-book-project_app:latest ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
+          
 
       # - name: Deploy to server
       #   uses: appleboy/ssh-action@master
