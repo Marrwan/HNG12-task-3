@@ -29,7 +29,7 @@ jobs:
 
       - name: Tag and push Docker image
         run: |
-          docker tag app:latest ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
+          docker tag fastapi-book-project:latest ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
           
 
