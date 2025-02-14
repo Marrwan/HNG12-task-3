@@ -12,31 +12,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Azure login
-        uses: azure/login@v1
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push to Azure Container Registry
-        uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
-
-      - name: Build and push image
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      - name: Build Docker images
         run: |
           docker-compose build
-          docker tag fastapi-book-project_app ${{ secrets.ACR_LOGIN_SERVER }}/fastapi-book-project:${{ github.sha }}
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/fastapi-book-project:${{ github.sha }}
-
-      - name: Deploy to Azure Container Apps
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az container create \
-              --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-              --name fastapi-app \
-              --image ${{ secrets.ACR_LOGIN_SERVER }}/fastapi-book-project:${{ github.sha }} \
-              --dns-name-label fastapi-book-project \
-              --ports 80
+      - name: Tag and push Docker image
+        run: |
+          docker tag app:latest ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
+          docker tag fastapi-book-project:latest ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/fastapi-book-project:latest
+          
